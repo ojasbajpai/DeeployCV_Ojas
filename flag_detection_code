@@ -1,0 +1,44 @@
+from PIL import Image
+import numpy as np
+
+
+def identify_flag(image_path):
+    # Open the image
+    img = Image.open(image_path)
+    img = img.resize((300, 200))  # Resize to make processing faster and uniform
+
+    # Convert to numpy array
+    img_array = np.array(img)
+
+    # Convert to grayscale for brightness (brightness helps differentiate red and white)
+    gray_img = img.convert('L')
+    gray_array = np.array(gray_img)
+
+    # Threshold values to differentiate Red and White
+    RED_THRESHOLD = 100  # Red regions are darker in grayscale
+    WHITE_THRESHOLD = 200  # White regions are much brighter
+
+    # Identify red (darker) and white (brighter) pixels
+    red_mask = (gray_array < RED_THRESHOLD)
+    white_mask = (gray_array > WHITE_THRESHOLD)
+
+    # Calculate the vertical distribution of red and white pixels
+    red_vertical = np.sum(red_mask, axis=1)  # Sum of red pixels per row
+    white_vertical = np.sum(white_mask, axis=1)  # Sum of white pixels per row
+
+    # Find where the red and white pixels are concentrated
+    red_center = np.argmax(red_vertical)  # Row with most red pixels
+    white_center = np.argmax(white_vertical)  # Row with most white pixels
+
+    # Determine flag orientation
+    if red_center < white_center:
+        print("The flag is of Indonesia.")
+    elif white_center < red_center:
+        print("The flag is of Poland.")
+    else:
+        print("Unable to determine flag orientation with certainty.")
+
+
+# Path to the uploaded image
+image_path = r'C:\Users\manish vajpai\Desktop/in.jpg'
+identify_flag(image_path)
