@@ -1,0 +1,119 @@
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Load Image
+def load_image(image_path):
+    image = cv2.imread(image_path)
+    return image
+
+# 1. Grey Scaling
+def grey_scale(image):
+    grey = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    return grey
+
+# 2. Thresholding (Black & White)
+def threshold_black_white(image, threshold_value=128):
+    _, thresh = cv2.threshold(image, threshold_value, 255, cv2.THRESH_BINARY)
+    return thresh
+
+# 3. 16 Grey Levels
+def reduce_to_16_grey(image):
+    grey = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    reduced_grey = (grey // 16) * 16  # Reduce 0-255 to 16 grey levels
+    return reduced_grey
+
+# 4. Sobel Filter
+def sobel_filter(image):
+    grey = grey_scale(image)
+    sobel_x = cv2.Sobel(grey, cv2.CV_64F, 1, 0, ksize=3)
+    sobel_y = cv2.Sobel(grey, cv2.CV_64F, 0, 1, ksize=3)
+    sobel_combined = cv2.magnitude(sobel_x, sobel_y)
+    sobel_combined = np.uint8(sobel_combined)
+    return sobel_combined
+
+# 5. Canny Edge Detector
+def canny_edge(image, threshold1=50, threshold2=150):
+    grey = grey_scale(image)
+    edges = cv2.Canny(grey, threshold1, threshold2)
+    return edges
+
+# 6. Gaussian Blur (Noise Removal)
+def gaussian_blur(image, kernel_size=5):
+    blurred = cv2.GaussianBlur(image, (kernel_size, kernel_size), 0)
+    return blurred
+
+# 7. Sharpen Image
+def sharpen_image(image):
+    kernel = np.array([[0, -1, 0],
+                       [-1, 5, -1],
+                       [0, -1, 0]])
+    sharpened = cv2.filter2D(image, -1, kernel)
+    return sharpened
+
+# 8. Convert RGB to BGR
+def rgb_to_bgr(image):
+    converted = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+    return converted
+
+# Main Function to Display All Tasks
+def display_results(image_path):
+    image = load_image(image_path)
+    grey = grey_scale(image)
+    thresh = threshold_black_white(grey)
+    grey16 = reduce_to_16_grey(image)
+    sobel = sobel_filter(image)
+    canny = canny_edge(image)
+    blurred = gaussian_blur(image)  # Gaussian Blurred Image
+    sharpened = sharpen_image(blurred)
+    bgr_image = rgb_to_bgr(image)  # RGB to BGR Image
+
+    # Plot results in a 2x4 grid
+    plt.figure(figsize=(20, 10))
+    plt.subplot(2, 4, 1)
+    plt.imshow(grey, cmap='gray')
+    plt.title("Grey Scale")
+    plt.axis('off')
+
+    plt.subplot(2, 4, 2)
+    plt.imshow(thresh, cmap='gray')
+    plt.title("Threshold (B & W)")
+    plt.axis('off')
+
+    plt.subplot(2, 4, 3)
+    plt.imshow(grey16, cmap='gray')
+    plt.title("16 Grey Levels")
+    plt.axis('off')
+
+    plt.subplot(2, 4, 4)
+    plt.imshow(sobel, cmap='gray')
+    plt.title("Sobel Filter")
+    plt.axis('off')
+
+    plt.subplot(2, 4, 5)
+    plt.imshow(canny, cmap='gray')
+    plt.title("Canny Edge Detector")
+    plt.axis('off')
+
+    plt.subplot(2, 4, 6)
+    plt.imshow(cv2.cvtColor(blurred, cv2.COLOR_BGR2RGB))
+    plt.title("Gaussian Blurred Image")
+    plt.axis('off')
+
+    plt.subplot(2, 4, 7)
+    plt.imshow(cv2.cvtColor(sharpened, cv2.COLOR_BGR2RGB))
+    plt.title("Sharpened Image")
+    plt.axis('off')
+
+    plt.subplot(2, 4, 8)
+    plt.imshow(cv2.cvtColor(bgr_image, cv2.COLOR_BGR2RGB))
+    plt.title("RGB to BGR Conversion")
+    plt.axis('off')
+
+    plt.tight_layout()
+    plt.show()
+
+
+# Run the function on the uploaded image
+image_path = r"C:\Users\manish vajpai\Desktop\image.jpg"
+display_results(image_path)
